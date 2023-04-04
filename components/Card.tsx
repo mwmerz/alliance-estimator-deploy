@@ -1,11 +1,8 @@
+import { useState } from "react";
 import {
   nativeFieldMap,
-  NativeFieldKey,
-  NativeCalculatedValues,
   NativeInputValues,
   allianceFieldMap,
-  AllianceFieldKey,
-  AllianceCalculatedValues,
   AllianceInputValues,
   InputValues,
   CalculatedValues,
@@ -22,6 +19,8 @@ const Card = ({
   derivedValues,
   assetId,
   index,
+  toggleExpansion,
+  expanded,
 }: {
   assetId?: number;
   section: string;
@@ -29,13 +28,18 @@ const Card = ({
   userInputValues: InputValues;
   derivedValues: CalculatedValues;
   index: number;
+  toggleExpansion: (index: number) => void;
+  expanded: boolean;
 }) => {
   const { handleNativeInputChange, handleAllianceInputChange } = useAppState();
   const fields = type === "native" ? nativeFieldMap : allianceFieldMap;
 
+  function handleHeaderClick() {
+    toggleExpansion(index);
+  }
+
   function handleInputUpdate(e: React.ChangeEvent<HTMLInputElement>) {
     if (type === "native") {
-      console.log("native triggered", e.target.name, e.target.value);
       handleNativeInputChange(
         e.target.name as keyof NativeInputValues,
         e.target.value
@@ -51,9 +55,17 @@ const Card = ({
   }
 
   return (
-    <div className={cardStyles.fieldSection}>
-      <div className={cardStyles.fieldSectionHeader}>
+    <div
+      className={`${cardStyles.fieldSection} ${
+        expanded && cardStyles.expanded
+      }`}
+    >
+      <div
+        className={cardStyles.fieldSectionHeader}
+        onClick={handleHeaderClick}
+      >
         <h3 className={cardStyles.fieldSectionTitle}>{section}</h3>
+        <div>{expanded ? "^" : "v"}</div>
       </div>
       <div className={cardStyles.inputs}>
         {fields[section].map((field, i) => (
